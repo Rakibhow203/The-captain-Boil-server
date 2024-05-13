@@ -30,15 +30,34 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     const allFoodCollection =client.db('TheCaptainBoil').collection('AllFoods')
+    const topFoodCollection =client.db('TopFoods').collection('TopFood')
  app.get('/foods', async (req, res) => {
       const cursor = allFoodCollection.find();
       const result = await cursor.toArray();
       res.send(result);
  });
-    
-     const topFoodCollection =client.db('TopFoods').collection('TopFood')
+ 
+     app.post('/tops', async (req, res) => {
+      const addAll = req.body;
+      console.log(addAll);
+       const result = await topFoodCollection.insertOne(addAll);
+       res.send(result);
+    });
+    app.get('/myfood/:email', async (req, res) => {
+      console.log(req.params.email);
+      const result = await topFoodCollection
+        .find({ email: req.params.email })
+        .toArray();
+      res.send(result);
+    });
+     app.delete('/myfood/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await topFoodCollection.deleteOne(query);
+      res.send(result);
+    });
      app.get('/tops', async (req, res) => {
-      const cursor = allFoodCollection.find();
+      const cursor = topFoodCollection.find();
       const result = await cursor.toArray();
       res.send(result);
     });
