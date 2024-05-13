@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 require('dotenv').config()
 
 const app = express();
@@ -60,8 +60,32 @@ async function run() {
       const cursor = topFoodCollection.find();
       const result = await cursor.toArray();
       res.send(result);
+     });
+    // update
+     app.get('/tops/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await topFoodCollection.findOne(query);
+      res.send(result);
+     });
+    app.put('/tops/:id', async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) };
+      const options = { upsert: true };
+      const updatedFood = req.body;
+      const food = {
+        $set: {
+          name:updatedFood.name,
+      image:updatedFood.image,
+      category:updatedFood.category,
+      price:updatedFood.price,
+      origin:updatedFood.origin,
+      description:updatedFood.description,
+        },
+      };
+      const result = await topFoodCollection.updateOne(filter, food, options);
+      res.send(result);
     });
-    
     // Connect the client to the server	(optional starting in v4.7)
     // await client.connect();
     // Send a ping to confirm a successful connection
